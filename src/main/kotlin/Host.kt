@@ -216,6 +216,10 @@ fun runOnUbuntuTouch(content: @Composable () -> Unit) {
     val prev = java.nio.ByteBuffer.allocateDirect(W * H * 4)
     var changedBands = 0
     var touchCount = 0
+    // Optional screen recording of the Compose content (not the keyboard): a JPEG per changed frame, at most 10 per second.
+    val recDir = System.getenv("COMPOSE_RECORD")?.let { File(it).apply { mkdirs() } }
+    var recSeq = 0L
+    var recLast = 0L
     var frames = 0; var renderNs = 0L; var copyNs = 0L; var statStart = System.nanoTime()
     println("host: ${file.path} ${W}x$H")
     while (true) {
@@ -256,6 +260,17 @@ fun runOnUbuntuTouch(content: @Composable () -> Unit) {
             b.put(a)
             map.putLong(24 + i * 8, ++bandSeq) // after the pixels, so Qt never sees a half-written band announced
             changedBands++
+        }
+        if (recDir != null) {
+            val now = System.currentTimeMillis()
+            if (bandSeq != recSeq && now - recLast >= 100) {
+                val img = surface.makeImageSnapshot()
+                try {
+                    val data = img.encodeToData(org.jetbrains.skia.EncodedImageFormat.JPEG, 70)
+                    if (data != null) { File(recDir, "%013d.jpg".format(now)).writeBytes(data.bytes); data.close() }
+                } finally { img.close() }
+                recSeq = bandSeq; recLast = now
+            }
         }
         val t2 = System.nanoTime()
         frames++; renderNs += t1 - t0; copyNs += t2 - t1

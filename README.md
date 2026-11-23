@@ -39,6 +39,12 @@ for the 8T and are hardcoded; adjust them for your device.
 Add a `jvm()` target, depend on the root project and `compose.desktop.linux_arm64` in `jvmMain`, and start it with
 `runOnUbuntuTouch { YourApp() }`. Apps need a ViewModel store and a RESUMED lifecycle; the host provides both.
 
+## Recording the screen
+
+Ubuntu Touch has no screen recorder we can use over `adb`, so the host can record its own Compose content (not the keyboard
+or status bar): `touch /home/phablet/compose-spike/record.on`, launch the app, then `adb pull .../compose-spike/rec` and join the
+timestamped JPEGs with ffmpeg (concat demuxer, durations from the file names). Remove `record.on` to stop.
+
 ## Known gaps
 
 System back gesture, safe-area insets, fixed window size, selection/copy-paste, GPU rendering (CPU Skia only), and the

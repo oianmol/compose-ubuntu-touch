@@ -4,6 +4,8 @@
 cd /home/phablet/compose-spike || exit 1
 exec >host.log 2>&1
 export XDG_RUNTIME_DIR=/run/user/32011
+# Recording: `touch record.on` before launching; JPEG frames go to rec/ (see README).
+[ -f record.on ] && export COMPOSE_RECORD=/home/phablet/compose-spike/rec
 JAR=${1:-compose-spike.jar}
 MAIN=${2:-HostKt}
 (unset DISPLAY; exec ./jdk-17*/bin/java -Xmx512m -XX:MaxDirectMemorySize=256m -Djava.awt.headless=true -Dskiko.renderApi=SOFTWARE -cp "$JAR" "$MAIN") &
