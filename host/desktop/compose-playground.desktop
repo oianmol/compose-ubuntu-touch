@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Compose Playground
+Exec=/home/phablet/compose-spike/host/run-host.sh playground.jar PlaygroundMainKt
+Icon=applications-other
+Categories=Utility;
+X-Purism-FormFactor=Workstation;Mobile;
+NoDisplay=false

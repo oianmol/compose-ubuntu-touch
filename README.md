@@ -31,7 +31,7 @@ adb push host /home/phablet/compose-spike/
 adb shell sh /home/phablet/compose-spike/host/test-run.sh playground.jar PlaygroundMainKt 20   # guarded 20 s run
 ```
 
-Use `host/run-host.sh playground.jar PlaygroundMainKt` for a normal run. Paths such as `/run/user/32011` and the 1080x2277 window are
+To get a launcher icon, copy `host/desktop/compose-playground.desktop` to `~/.local/share/applications/` on the phone. Or use `host/run-host.sh playground.jar PlaygroundMainKt` for a normal run. Paths such as `/run/user/32011` and the 1080x2277 window are
 for the 8T and are hardcoded; adjust them for your device.
 
 ## Porting your own KMP app
