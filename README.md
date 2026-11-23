@@ -7,6 +7,10 @@ Qt/QML host (`qmlscene`) shows them, forwards touch, and brings up Ubuntu Touch'
 Status: proof of concept, tested on a OnePlus 8T (Ubuntu Touch 24.04, aarch64). Roughly 60 fps render, idle screen costs
 nothing, memory ~130-180 MB. Details, dead ends and measurements are in [NOTES.md](NOTES.md).
 
+## Demo
+
+[Watch the playground running on a OnePlus 8T](docs/playground-walkthrough.mp4) (49 s, app content only, no keyboard).
+
 ## Layout
 
 - `src/main/kotlin/` — the host: `runOnUbuntuTouch { App() }`, input method bridge, touch, frame bands
