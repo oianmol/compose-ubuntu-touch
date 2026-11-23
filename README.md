@@ -11,6 +11,8 @@ nothing, memory ~130-180 MB. Details, dead ends and measurements are in [NOTES.m
 
 - `src/main/kotlin/` — the host: `runOnUbuntuTouch { App() }`, input method bridge, touch, frame bands
 - `host/` — Qt side (`host.qml`, `bridge.py`) and run scripts that go on the phone
+- `apps/playground/` — chooser home screen with demos: sign-up form, the cupcake app, animations, multi-touch ink, platform info.
+  Add a `Demo(...)` to the `demos` list in `PlaygroundApp.kt` to add your own
 - `apps/cupcake/` — a **Kotlin Multiplatform** sample (JetBrains' `nav_cupcake`, Apache-2.0)
   - `commonMain/` shared UI, resources, and `expect fun platformName()`
   - `jvmMain/` the `actual`, plus `main.kt` that calls `runOnUbuntuTouch`
@@ -23,13 +25,13 @@ Needs a Mac/Linux box with Gradle and JDK 17, and an Ubuntu Touch device with `a
 PyOtherSide and a Temurin 17 aarch64 JDK in `/home/phablet/compose-spike/`.
 
 ```sh
-gradle :jar :cupcake:fatJar
-adb push apps/cupcake/build/libs/cupcake.jar /home/phablet/compose-spike/
+gradle :jar :playground:fatJar          # or :cupcake:fatJar for the single sample
+adb push apps/playground/build/libs/playground.jar /home/phablet/compose-spike/
 adb push host /home/phablet/compose-spike/
-adb shell sh /home/phablet/compose-spike/host/test-run.sh cupcake.jar MainKt 20   # guarded 20 s run
+adb shell sh /home/phablet/compose-spike/host/test-run.sh playground.jar PlaygroundMainKt 20   # guarded 20 s run
 ```
 
-Use `host/run-host.sh cupcake.jar MainKt` for a normal run. Paths such as `/run/user/32011` and the 1080x2277 window are
+Use `host/run-host.sh playground.jar PlaygroundMainKt` for a normal run. Paths such as `/run/user/32011` and the 1080x2277 window are
 for the 8T and are hardcoded; adjust them for your device.
 
 ## Porting your own KMP app

@@ -115,7 +115,6 @@ private fun Milestone() {
     LaunchedEffect(Editor.dismissTick) { if (Editor.dismissTick > 0) focus.clearFocus() }
     var fingers by remember { mutableStateOf(listOf<Offset>()) }
     val ink = Color(0xFF1B1B1F)
-    val kbDp = with(LocalDensity.current) { Editor.kbPx.toDp() }
     Box(
         Modifier.fillMaxSize().background(Color(0xFFF7F7F7)).pointerInput(Unit) {
             awaitPointerEventScope {
@@ -123,7 +122,7 @@ private fun Milestone() {
             }
         }
     ) {
-        Column(Modifier.fillMaxSize().padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 16.dp + kbDp)) {
+        Column(Modifier.fillMaxSize().padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 16.dp)) {
             Text("Compose via Qt host", color = ink, fontSize = 24.sp)
             Text("fingers: ${fingers.size}  taps: $taps  keyboard: ${Editor.kbPx}px", color = ink, fontSize = 16.sp)
             Box(
@@ -187,8 +186,11 @@ private fun WithAppOwners(content: @Composable () -> Unit) {
     CompositionLocalProvider(
         androidx.lifecycle.viewmodel.compose.LocalViewModelStoreOwner provides owner,
         androidx.lifecycle.compose.LocalLifecycleOwner provides owner,
-        content = content,
-    )
+    ) {
+        // Like Android's adjustResize: shrink the app by the on-screen keyboard so focused fields stay visible.
+        val kbDp = with(LocalDensity.current) { Editor.kbPx.toDp() }
+        Box(Modifier.fillMaxSize().padding(bottom = kbDp)) { content() }
+    }
 }
 
 /** Demo screen for the host itself. */

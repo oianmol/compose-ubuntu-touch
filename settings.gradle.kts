@@ -15,3 +15,5 @@ rootProject.name = "compose-spike"
 
 include(":cupcake")
 project(":cupcake").projectDir = file("apps/cupcake")
+include(":playground")
+project(":playground").projectDir = file("apps/playground")
