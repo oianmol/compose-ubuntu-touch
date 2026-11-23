@@ -1,0 +1,46 @@
+# Compose Multiplatform on Ubuntu Touch
+
+Run a Kotlin Compose Multiplatform app on an Ubuntu Touch phone (Lomiri, Mir). Compose can't be a Wayland client
+there, so a headless Compose renderer (JVM, Skia `CanvasLayersComposeScene`) writes frames to a shared file and a small
+Qt/QML host (`qmlscene`) shows them, forwards touch, and brings up Ubuntu Touch's own keyboard for text fields.
+
+Status: proof of concept, tested on a OnePlus 8T (Ubuntu Touch 24.04, aarch64). Roughly 60 fps render, idle screen costs
+nothing, memory ~130-180 MB. Details, dead ends and measurements are in [NOTES.md](NOTES.md).
+
+## Layout
+
+- `src/main/kotlin/` — the host: `runOnUbuntuTouch { App() }`, input method bridge, touch, frame bands
+- `host/` — Qt side (`host.qml`, `bridge.py`) and run scripts that go on the phone
+- `apps/cupcake/` — a **Kotlin Multiplatform** sample (JetBrains' `nav_cupcake`, Apache-2.0)
+  - `commonMain/` shared UI, resources, and `expect fun platformName()`
+  - `jvmMain/` the `actual`, plus `main.kt` that calls `runOnUbuntuTouch`
+
+`expect`/`actual` work: `Platform.kt` (common) declares it, `Platform.jvm.kt` supplies the JVM actual.
+
+## Try it
+
+Needs a Mac/Linux box with Gradle and JDK 17, and an Ubuntu Touch device with `adb` access, `qmlscene`,
+PyOtherSide and a Temurin 17 aarch64 JDK in `/home/phablet/compose-spike/`.
+
+```sh
+gradle :jar :cupcake:fatJar
+adb push apps/cupcake/build/libs/cupcake.jar /home/phablet/compose-spike/
+adb push host /home/phablet/compose-spike/
+adb shell sh /home/phablet/compose-spike/host/test-run.sh cupcake.jar MainKt 20   # guarded 20 s run
+```
+
+Use `host/run-host.sh cupcake.jar MainKt` for a normal run. Paths such as `/run/user/32011` and the 1080x2277 window are
+for the 8T and are hardcoded; adjust them for your device.
+
+## Porting your own KMP app
+
+Add a `jvm()` target, depend on the root project and `compose.desktop.linux_arm64` in `jvmMain`, and start it with
+`runOnUbuntuTouch { YourApp() }`. Apps need a ViewModel store and a RESUMED lifecycle; the host provides both.
+
+## Known gaps
+
+System back gesture, safe-area insets, fixed window size, selection/copy-paste, GPU rendering (CPU Skia only), and the
+internal Compose APIs the host uses can change between versions (pinned to Compose 1.8.1 / Kotlin 2.1.20).
+Watch `dmesg -w` while testing; an earlier native memory leak made the phone reset.
+
+MIT licensed (see LICENSE); the cupcake sample keeps its own Apache-2.0 license.
